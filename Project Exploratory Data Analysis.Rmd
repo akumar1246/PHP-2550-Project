@@ -22,7 +22,7 @@ library(gt)
 library(usmap)
 library(zoo)
 #Read in data
-isolates <- read.csv("/Users/anushakumar/Documents/Grad School Documents (Macbook)/PHP 2550/Project/isolates .csv", na.strings=c("","NA"))
+isolates <- read.csv("isolates .csv", na.strings=c("","NA"))
 ```
 
 ### **Data Description**
