@@ -440,7 +440,7 @@ isolates$Isolate<-as.factor(isolates$Isolate)
 ggplot(data = isolates, 
        aes(x= Source))+
   geom_bar(fill= "blue")+
-  theme_gray()
+  theme_gray() +
 labs(title = "Distribution of Sources in the data", x= "Sources", y= "frequency")
 
 From the bar graph above, we can observe that most of the sources came from chicken, having the highest percentage, followed by human, cattle and pig as the top 4 most sources. Dairy provided the least source as per the graph.
@@ -449,7 +449,7 @@ From the bar graph above, we can observe that most of the sources came from chic
 ggplot(data = isolates, 
        aes(x= Year))+
   geom_bar(fill= "red")+
-  theme_gray()
+  theme_gray() +
   labs(title = "A graph of distribution of years", x= "Years", y= "frequency")
   
 From the graph, we can observe that the year 2019 was the most prevalent year with the highest performance in terms of isolates data. However, 2012 had the lowest frequency. Notably, as the years progress, their frequencies keep increasing, meaning that there are improvements in the upcoming years. 
