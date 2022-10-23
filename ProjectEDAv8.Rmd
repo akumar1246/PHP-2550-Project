@@ -405,17 +405,88 @@ As we see in Figure 2, observations that are missing *Min.diff* also tend to be 
 
 ### **Univariate Exploration**
 
+In the final dataset we have 43089 observations of 13 variables (Strain, Isolate.identifiers and Isolation.type, SNP.cluster, Min.same and Min.diff, AMR.genotypes, Year, Month, Source, State, and Outbreak). The following variables does not have missing values:Isolate, Year, Month, and Outbreak. The biggest number of missing values is observed in State variable (15362 observations). The following variables - Isolate.identifiers, Strain, and Source have respectively small number of missing observations (14, 39, and 222 respectively).
+The dataset consists of 36% clinical isolates and 64% environmental isolates (the number of missing values is small - 51 observation). In terms of environmental source the highest number of isolates was collected from chicken (17296), followed by cattle (6739) and pig (1602); the smallest number - from dairy (88 isolates).
+The isolates were classified to 3848 SNP.clusters with maximum number of 1030 isolates, average number - 11, and median 3 isolates. Slightly more than 7 thousand isolates were not classified to any cluster. Taking into account that some clusters may contain both types of isolates, and some - only one type, the number of mission values in Min.diff and Min.same is higher than in SNP.cluster (15712 and 7754 isolates respectively).
+The dataset contains isolates from all 9 years included into research though the distribution is not equal with the lowest number of isolates in 2012(less than 0.05%) and the highest in 2019 (28%).
+The distribution of cases by month varies from 6.5% in February to almost 12% in April. The most number of isolates were collected in spring and summer (11.5 thousands per each season), and slightly less in fall (10.7 thousands), and winter (9.2 thousands).
+The isolates were collected in all states though in some states only few isolates were collected: the smallest number in Nevada (3), Alaska (4), Hawaii(14),North Dakota (11), Montana(28), New Hampshire(28); and the highest number of isolates - in Texas(1892), Georgia (2443), and California (2124).
+1844 isolates were assigned to outbreaks, representing 607 outbreaks in total.
 
+```{r}
+#Overall database
+str(isolates)
 
+#factor variables
+isolates$Isolation.type<-as.factor(isolates$Isolation.type)
+isolates$Source<-as.factor(isolates$Source)
+isolates$State<-as.factor(isolates$State)
+isolates$Outbreak<-as.factor(isolates$Outbreak)
+isolates$Year<-as.factor(isolates$Year)
+isolates$Month<-as.factor(isolates$Month)
+isolates$Isolate<-as.factor(isolates$Isolate)
 
+# Summary and missing values observed per variable
+summary(isolates)
+apply(isolates, 2, function(x){return(sum(is.na(x)))})
 
+#strain
+# structure of data by strain
+str(isolates$Strain)
+# sum of missing value counts in strain
+sum(is.na(isolates$Strain))
 
+#Isolate
+# structure of data by Isolate
+str(isolates$Isolate)
+# sum of missing value counts in Isolate
+sum(is.na(isolates$Isolate))
 
+#Isolate.identifier
+# structure of data by Isolate.identifier
+str(isolates$Isolate.identifiers)
+# sum of missing value counts in Isolate.identifier
+sum(is.na(isolates$Isolate.identifiers))
 
+#Isolation.type
+isolates%>%group_by(Isolation.type)%>%summarize(n=n()/43089)
 
+#SNP.cluster
+#Number of clusters and their size
+isolates%>%group_by(SNP.cluster)%>%summarize(size=n())%>%arrange(desc(size))%>%summary(size)
 
+#AMR.genotypes
+# structure of data by AMR.genotypes
+str(isolates$AMR.genotypes)
+# sum of missing value counts in AMR.genotypes
+sum(is.na(isolates$AMR.genotypes))
 
+#Year
+year<-isolates%>%group_by(Year)%>%summarize(num=n()/43089)
 
+#Month
+isolates%>%group_by(Month)%>%summarize(n=n()/43089)
+isolates%>%mutate(season=case_when(
+  Month%in% c("12", "1", "2")~ "Winter",
+  Month%in% c("3", "4", "5")~ "Spring",
+  Month%in% c("6","7","8")~"Summer",
+  Month%in% c("9","10","11")~"Fall"))%>%
+  group_by(season)%>%
+  summarize(n=n())
+
+#State
+isolates%>%group_by(State)%>%summarize(num=n())%>%
+print(n=52)
+
+#Source
+isolates%>%group_by(Source)%>%summarize(num=n())%>%
+  print(n=20)
+
+#Outbreak
+isolates%>%group_by(Outbreak)%>%summarize(n=n())
+isolates%>%filter(Outbreak=="1")%>%group_by(SNP.cluster)%>%summarize(n=n())%>%summary(n)
+
+```
 ### **Multivariate Exploration**
 
 First, we will want to see if there are any significant differences in distribution of our variables between isolates that are part of an outbreak, and isolates that are not part of an outbreak. Since many of our variables are categorical with thousands of categories, we will first examine our variables with many categories to see if there seems to be any relationship (for example, if there are a much smaller number of categories relative to the size of the Outbreak group, when compared with the non-Outbreak group). Then, we look at variables that have a small number of categories and see if there is a significant difference in proportions.
