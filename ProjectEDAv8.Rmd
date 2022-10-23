@@ -417,6 +417,15 @@ The isolates were collected in all states though in some states only few isolate
 #Overall database
 str(isolates)
 
+# check the no. of observations of the data
+dim(isolates)
+
+# view the first 5 observations
+head(isolates)
+
+# view the last 5 observations
+tail(isolates)
+
 #factor variables
 isolates$Isolation.type<-as.factor(isolates$Isolation.type)
 isolates$Source<-as.factor(isolates$Source)
@@ -425,6 +434,25 @@ isolates$Outbreak<-as.factor(isolates$Outbreak)
 isolates$Year<-as.factor(isolates$Year)
 isolates$Month<-as.factor(isolates$Month)
 isolates$Isolate<-as.factor(isolates$Isolate)
+
+# plot graphs for visual representation of the data
+# check distribution of the sources of the isolates data
+ggplot(data = isolates, 
+       aes(x= Source))+
+  geom_bar(fill= "blue")+
+  theme_gray()
+labs(title = "Distribution of Sources in the data", x= "Sources", y= "frequency")
+
+From the bar graph above, we can observe that most of the sources came from chicken, having the highest percentage, followed by human, cattle and pig as the top 4 most sources. Dairy provided the least source as per the graph.
+
+# view which year was the most prevalent as per the data
+ggplot(data = isolates, 
+       aes(x= Year))+
+  geom_bar(fill= "red")+
+  theme_gray()
+  labs(title = "A graph of distribution of years", x= "Years", y= "frequency")
+  
+From the graph, we can observe that the year 2019 was the most prevalent year with the highest performance in terms of isolates data. However, 2012 had the lowest frequency. Notably, as the years progress, their frequencies keep increasing, meaning that there are improvements in the upcoming years. 
 
 # Summary and missing values observed per variable
 summary(isolates)
@@ -686,9 +714,9 @@ Lastly, looking at Table 2 we notice that the distribution in isolation source i
 
 1. The procedure of data collection incorporates certain biases in the dataset from the very beginning. First, only certified laboratories may submit isolates into the dataset. Second, the submission of data is not required (not mandatory) that develops a type of volunteer bias. Third, only those isolates that were sequenced may be included into the dataset. It means that clinical and environmental isolates that were not analyzed by whole genome sequence approach are missing in the dataset.
 
-2. Confounding bias occurs because of a systematic distortion that changes the relationship between exposure and the result (outcome) due to the independent association between a factor and the exposure and outcome (Skelly, Dettori & Brodt, 2012). Frost (2018) showcases that missing confounding variables can influence cause and effect to determine the causal relationship based on a predictive model. If these factors are missing from the statistical model, these can mask or exaggerate the actual relationship between independent and dependent variables, this in turn, biases the estimated effects. He further argues that the problem only occurs in predictive models when the confounding factors are either not known or not recorded at all. In our dataset extracted from NCBI, clinical data is extremely limited. The information on severity of cases, demographic factors, hospitalization status, etc. is not available which not only limits the analysis, but also development of predictive models resulting in omitted variable or missing data bias.
+2. Confounding bias occurs because of a systematic distortion that changes the relationship between exposure and the result (outcome) due to the independent association between a factor and the exposure and outcome (Skelly, Dettori & Brodt, 2012). Frost (2018) showcases that missing confounding variables can influence cause and effect to determine the causal relationship based on a predictive model. If these factors are missing from the statistical model, these can mask or exaggerate the actual relationship between independent and dependent variables, this in turn, biases the estimated effects. He further argues that the problem only occurs in predictive models when the confounding factors are either not known or not recorded at all. In our dataset extracted from NCBI, clinical data is extremely limited. The information on severity of cases, demographic factors, hospitalization status, etc. is not available which not only limits the analysis, but also development of predictive models resulting in omitted variable or missing data bias. Moreover, since there is no data available on hospitalization of the subjects from whom the isolates were submitted to NCBI, it is likely that if the isolates were collected in hospital settings, there is a good chance of admission bias which occurs due to cross-sectional or case control studies.
 
-3. Classification bias, also known as information bias or measurement bias, occurs when factors that can influence the outcome at hand are inadequately recorded, resulting in limitations of the dataset (Lambert, 2011). Though the dataset in principle contains the information on SNP distance between closest isolates in phylogenetic trees, access to this information for statistical analysis is very limited. The dataset contains only information on minimal distance between closest isolates but there is no possibility to check which isolates (except through phylogenetic trees that are not included into the general database). The SNP clusters are very broad, which is not very helpful for outbreak detection: though in literature it is mentioned that SNP-clusters are built in the framework of 50 SNPs, there are clusters with up to 98 SNPs distance. It would be helpful to have an option to define minimal and maximum distance between isolates in SNP clusters as for different purposes the distance may vary.
+3. Classification bias, also known as information bias or measurement bias, occurs when factors that can influence the outcome at hand are inadequately recorded, resulting in limitations of the dataset (Lambert, 2011). Though the dataset in principle contains the information on SNP distance between closest isolates in phylogenetic trees, access to this information for statistical analysis is very limited. The dataset contains only information on minimal distance between closest isolates but there is no possibility to check which isolates (except through phylogenetic trees that are not included into the general database). The SNP clusters are very broad, which is not very helpful for outbreak detection: though in literature it is mentioned that SNP-clusters are built in the framework of 50 SNPs, there are clusters with up to 98 SNPs distance. It would be helpful to have an option to define minimal and maximum distance between isolates in SNP clusters as for different purposes the distance may vary. While the dataset contains information on sequenced data, data regarding other factors such as contact patterns, location and exposure time is not available in the database which makes it difficult to estimate the transmission routes based on the isolate genetic similarities. It is quite possible that an isolate may be sampled from a single carrier more than once either simultaneously or at different point in time during infections, which suggests the need to define the genetic distance between isolate population from two cases. Under such instances, mean pairwise and centroid distances between isolate groups may be critical besides minimal distance for network reconstruction.
 
 4. Missing data bias, also known as omitted variable bias, occurs when certain important information is missing from the dataset. This results in limitations with respect to conducting detailed analysis (Baur, 2022). Such omissions may be intentional or because the researcher did not pay attention to data recording. Gorelick (2006) highlights that large amounts of missing information in the data may result in biased estimates from predictive models. Missing data in many variables as well as the MNAR mechanism of missingness complicates the whole statistical analysis and requires many assumptions. For our research question the most problematic is non-availability of data regarding the outcome of interest (outbreak data). Among 80 thousand isolates only 7 were included into 2 outbreaks. The dataset does not provide any explanation of the reason for this missing data: there may be isolates involved in other outbreaks but this status is not mentioned in the dataset, or other isolates were not a part of outbreaks, or both. In addition, lack of specific location of isolates collection limits the possibility to determine relations among isolates, and does not support investigation of possible outbreak. Any inconsistently measured predictors or missing predictors may affect the overall validity of the predictive models.
 
