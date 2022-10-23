@@ -28,6 +28,6 @@ This folder includes all previous versions of syntax that we have created or wor
 This folder includes sources that we have used to investigate the topic of Campylobacter jejuni, sources that we have used in our literature review, as well as sources we have consulted to understand the potential limitations of our project.
 
 
-# ExploratoryDataAnalysis
+# ExploratoryDataAnalysis.Rmd
 
 This file contains the final version of our initial exploratory data analysis. 
