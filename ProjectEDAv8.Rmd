@@ -454,6 +454,17 @@ ggplot(data = isolates,
   
 From the graph, we can observe that the year 2019 was the most prevalent year with the highest performance in terms of isolates data. However, 2012 had the lowest frequency. Notably, as the years progress, their frequencies keep increasing, meaning that there are improvements in the upcoming years. 
 
+# check the isolation type based on the data using a bar graph
+ggplot(data = isolates,
+       aes(x= Isolation.type, fill= Year))+
+  geom_bar(position = "dodge")+
+  theme_gray() +
+  labs(title = "Frequency of Isolation types by years", x= "Isolation Type", y= "Frequency")
+  
+Notably, from the graph, we can observe that environmental/other had the highest isolation type, with 2019 having the highest environmental/other isolation type. Also, from the graph, we can observe that 2012 had the lowest isolation types for both clinical and environmental. As the years progressed, the isolation type for each section increased immensely. This graph enables us to predict that in the future, there is still the possibility of having increased isolation.
+
+Clinical isolates are less popular than environmental since they may not prevent diseases from occurring due to the sources in use. Environmental isolation types are more preferred since there are diverse sources from different environments. Also, environmental/other isolation types could be more preferred than clinical due to their cost efficiency. That is, they are less costly.
+
 # Summary and missing values observed per variable
 summary(isolates)
 apply(isolates, 2, function(x){return(sum(is.na(x)))})
