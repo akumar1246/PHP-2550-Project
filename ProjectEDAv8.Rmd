@@ -406,14 +406,14 @@ As we see in Figure 2, observations that are missing *Min.diff* also tend to be 
 ### **Univariate Exploration**
 
 In the final dataset we have 43089 observations of 13 variables (Strain, Isolate.identifiers and Isolation.type, SNP.cluster, Min.same and Min.diff, AMR.genotypes, Year, Month, Source, State, and Outbreak). The following variables does not have missing values:Isolate, Year, Month, and Outbreak. The biggest number of missing values is observed in State variable (15362 observations). The following variables - Isolate.identifiers, Strain, and Source have respectively small number of missing observations (14, 39, and 222 respectively).
-The dataset consists of 36% clinical isolates and 64% environmental isolates (the number of missing values is small - 51 observation). In terms of environmental source the highest number of isolates was collected from chicken (17296), followed by cattle (6739) and pig (1602); the smallest number - from dairy (88 isolates).
+The dataset consists of 36% clinical isolates and 64% environmental isolates (the number of missing values is small - 51 observation). In terms of environmental source the highest number of isolates was collected from chicken (17296), followed by cattle (6739) and pig (1602); the smallest number - from dairy (88 isolates). It is important to mention that the dataset does not contain isolates from water sources that also is a high-risk source of infection.
 The isolates were classified to 3848 SNP.clusters with maximum number of 1030 isolates, average number - 11, and median 3 isolates. Slightly more than 7 thousand isolates were not classified to any cluster. Taking into account that some clusters may contain both types of isolates, and some - only one type, the number of mission values in Min.diff and Min.same is higher than in SNP.cluster (15712 and 7754 isolates respectively).
 The dataset contains isolates from all 9 years included into research though the distribution is not equal with the lowest number of isolates in 2012(less than 0.05%) and the highest in 2019 (28%).
 The distribution of cases by month varies from 6.5% in February to almost 12% in April. The most number of isolates were collected in spring and summer (11.5 thousands per each season), and slightly less in fall (10.7 thousands), and winter (9.2 thousands).
 The isolates were collected in all states though in some states only few isolates were collected: the smallest number in Nevada (3), Alaska (4), Hawaii(14),North Dakota (11), Montana(28), New Hampshire(28); and the highest number of isolates - in Texas(1892), Georgia (2443), and California (2124).
 1844 isolates were assigned to outbreaks, representing 607 outbreaks in total.
 
-```{r}
+```{r, include = FALSE}
 #Overall database
 str(isolates)
 
