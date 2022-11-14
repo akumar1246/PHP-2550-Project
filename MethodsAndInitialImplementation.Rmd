@@ -1,0 +1,284 @@
+---
+title: "High-risk Sources and Seasons of C. Jejuni Outbreaks. Methods and Analysis Plan"
+author: "Nataliya Kyrychenko, Anusha Kumar, Kyla Finlayson"
+output: pdf_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Install packages
+  # If returns "dependency packages needed" please install those packages before
+  # trying to install "DMwR"
+#install.packages("~/Desktop/DMwR_0.4.1.tar.gz", repos = NULL, type = "source")
+
+# Load in libraries
+library(DiagrammeR)
+library(aod)
+library(broom)
+library(eHOF)
+library(glmtoolbox)
+library(lmtest)
+library(boot)
+library(DMwR)
+library(caret)
+library(InformationValue)
+library(pROC)
+library(tidyverse)
+library(kableExtra)
+library(rsvg)
+library(DiagrammeRsvg)
+
+# Load in cleaned data
+isolates <- read.csv("~/Desktop/isolates_clean.csv", na.strings=c("","NA"))
+```
+
+**Question of Interest**
+
+The initial question of our project was: "What sources of infection and times of year have a high likelihood of seeing an outbreak?." After our literature review and exploratory data analysis, the initial question remains the same as previously. We will be aiming to create a best-fitting model using the variables we have within our dataset. As a result, we may find that other variables that have a statistically significant relationship with Campylobacter jejuni outbreaks. While season and source of infection will be our primary outcomes of interest, we will also report any other significant relationships we uncover in the results section.
+
+**Data Pre-Processing**
+
+We will mostly be keeping the same data pre-processing method as we used in our first draft. For final analysis we will use only observations with complete data.
+
+According to the comments received from the first draft literature review and exploratory data analysis, a flow chart was added to demonstrate how the final dataset was created. Moreover, for the final paper the first draft will be revised and shortened. Below is the flowchart we will be adding to our project:
+
+<br>
+<br>
+<br>
+```{r, out.width="50%", out.height="50%", fig.cap = "Exclusion/Inclusion Criteria Flowchart", fig.align= "center"}
+ # **Subject to change depending on missing data method**
+  
+data <- list(a=80114, b=74654, c=58198, d=43089, e=27660)
+
+  # First and second lines set our visualization as an "undirected graph" definition
+  # Third line creates a dot layout with 5 nodes in it
+  # Fourth line assigns a label to each node
+  # Fifth line connects nodes
+plot <- grViz("digraph graph1 {
+  
+graph [layout = dot]
+
+# node definitions with substituted label text
+node [shape = rectangle, height=0.2, fillcolor = Biege, fontsize=8, width=2]
+a [label = '@@1']
+b [label = '@@2']
+c [label = '@@3']
+d [label = '@@4']
+e [label = '@@5']
+
+a -> b -> c -> d -> e [arrowsize=0.3, arrowtail=0.1, minlen=1]
+
+}
+
+[1]:  paste0('Raw Data (n = ', data$a, ' obs.)')
+[2]: paste0('Remove observations before 2012 (n = ', data$b, ' obs.)')
+[3]: paste0('Remove observations after 2020 (n = ', data$c, ' obs.)')
+[4]: paste0('Remove observations outside of USA (n = ', data$d, ' obs.)')
+[5]: paste0('Keeping only available cases for variables with missing values (n = ', data$e, ' obs.)')
+")
+
+plot %>% export_svg %>% charToRaw %>% rsvg_png("~/Desktop/graph.png")
+knitr::include_graphics("~/Desktop/graph.png")
+```
+<br>
+<br>
+<br>
+
+After our initial implementation below, we decided we are going to group *Month* variable into seasons and average temperature per month per state that would be important for searching patterns between climate and outbreaks moving forward.
+
+**Methods**
+
+The dependent variable "Outbreak" of the study is binary: 0 - no outbreak, 1 - outbreak. To build a prediction model for the outcome of interest, we will be using logistic regression. The key independent variables are *Source*, which is a categorical variable, and *Month*, which is a discrete numerical variable. Both of the variables will be included in the final model. In addition, considering the importance of temperature, husbandry laws, and general state-level differences, we will be incorporating state into our model structure as well. Considering that strains are grouped into states, fixed effects logistic regression will be used. We will create a logistic fixed effects model in R using a binomial family argument with the link function of logit, and fixed effects for state. The significance level will be set at 0.05.
+
+First, we will describe our data and outline our data pre-processing and filtering methods as we did in the first draft of our project submission. Then, we will add a table called Table 1 outlining the descriptive statistics of our final dataset. We will also include descriptive statistics stratified by our outcome of interest, *Outbreak*, in Table 1.
+
+Next, we will deal with our missing data. Considering that the proportion of missing data is very large (35%) on one of the most important variable *State* with the huge number of levels (50) we will not be able to use imputation. In this case we have to use only observations with complete data. 
+
+The analysis will be conducted in R (RStudio version 2022.07.2). For the analysis the following R packages will be used: (1) aod package is aimed to conduct analysis of overdispersed data, and function for generalized linear mixed effect models are available, (2) broom package allows to organize summary of models into tidy tables, (3) lmerTest package - for p-values of our mixed effects models based on the Satterthwaite approximation, (4) glmtoolbox - for Hesmer-Lemeshow goodness of fit test (hltest), (5) boot - for bootstrapping technique (boot), (7) UBL - for conducting informed undersampling using the CNN method, (8) DMwR - for conducting informed oversampling via SMOTE, and potentially more which we will add as needed. The "DMwR" package is no longer available on the CRAN repository, as a result, it will be installed via the archived versions of these packages which can be found under the "packages" folder in the project Github page. 
+
+The model building process will begin by first balancing our data. Only approximately 7% of our isolate observations are linked to an outbreak, therefore our groups are very unequal. To balance them, we will instead be using either oversampling, using the synthetic minority oversampling technique (SMOTE), or undersampling, using the condensed nearest neighbors (CNN) rule. We will test both methods to see which results in the best accuracy, as measured by AUC, sensitivity, and specificity. We will do this by first splitting our data into a training set and a testing set, randomly sampling 70% of our data as the training set and the remaining 30% as our testing set. Then, we will apply both methods to the training data and run a logistic mixed effects model with only our two primary predictors of interest (*Source* and *Month*), as well as fixed effects for State. Then, we will compare our predicted results with our test set of data and look at the measures mentioned earlier to see which method performed better. We will summarize these measures for each method in two figures: one figure called Figure 1 which shows the AUC curves for each method, and one figure called Figure 2 which shows the Brier scores for each method.
+
+After we have decided on either using undersampling or oversampling, we will implement it to balance our data, assess the balance, and then begin the model building process. We will refer to our exploratory data analysis and decide on a final list of predictor variables we should potentially include in our model. Then, we will build a model using all of these variables and run a backwards stepwise selection process using the R function step() to find the best fitting model based on AIC. We will include both variables *Source* and *Month* in our final model regardless of whether or not they are found to be significant. If one or both are found to not be significant, then we are still able to answer our question at interest. Then, once we have our final main effects model, we will consider interactions using the same process. We will build a model using all interactions of our filtered-down main effects variables, and run a backwards stepwise selection process based on AIC again to find our final model. Once we have our final model, we will display the results in a table called Table 2, showing both the exponentiated estimates of the coefficients, p-values, standard error, and other model measures for both our regular coefficients as well as our fixed effects.
+
+Then, we will check the fit of our final model. There are several methods to conduct this analysis. In our case we can try the deviance method. In the deviance method, the low value will indicate good fit of the model. Calibration and discrimination of the model will be checked using measures of accuracy including AUC, specificity, and sensitivity, and measures of calibration including the Homsler-Lemeshow Goodness-of-Fit test and Brier score. We will display these measures in both figures and/or tables.
+
+Lastly, we will check the assumptions of our model. First and foremost, one key assumption includes linearity. In our logistic regression model, a linear relationship should exist between the dependent and independent variables. When examining the error terms, or residuals, there does not have to be a normal distribution of residuals. Additionally, we do not require homoscedasticity (homogeneity of variances). We can also observe that for logistic regression, the dependent variable does not use the ratio or interval scale (Assumptions of Logistic Regression, n.d.). More particularly, when implementing logistic regression methods, we make the assumption of a binary outcome (some examples include yes vs. no, positive vs. negative, 1 vs. 0, etc.). In our project, our binary outcome is represented by our outbreak variable (1 if outbreak, 0 if no outbreak). The linear relationship explains the association between the logit of the outcome and the dependent (or predictor) variables. The logit function is **logit(p) = log(p/(1-p))**. Within this logit function, p represents the outcome probabilities. We also observe that within the predictor variables, there is no multicollinearity (known as high intercorrelations). Within our predictors, we also do not have any extreme values, influential values, or outliers (Logistic Regression Assumptions and Diagnostics in R - Articles - STHDA, n.d.).
+
+It is important that we can check our assumptions for logistic regression. When assessing the dependent variable, it is easy to assess if it is binary or dichotomous through a quick glance, as the dependent variable would have to fall into one of two clearly defined categories. When checking multicollinearity, we are aware that there should be no multicollinearity (or very little multicollinearity) amongst our independent variables, which can be justified by examining the VIF. The VIF between the predictor variables should not be very high, which can also be determined through certain tests, such as "Spearman's rank correlation coefficient" or the "Pearson correlation coefficient." As logistic regression generally needs quite large sample sizes, we can examine our sample size through a quick glance. More larger sample sizes produce more powerful results in our statistical analysis.
+
+**Justification**
+
+*Training set and validation set*
+The internal validation of the model is planned, thus the dataset needs to be randomly divided into training and test samples. The train dataset is described as data used for model fitting purposes. This is known as the actual dataset, used to train the model (when examining the case with neural networks, we can refer to weights and biases). The model refers to this set and learns from it (Shah, 2017).
+
+Through the validation dataset, the model fit provides us with an unbiased evaluation through the dataset we train. The validation set helps us make evaluations and make small adjustments to any model parameters. While the model looks at this data, it never learns from the validation dataset. As a result, the validation set can indirectly affect the model. We can refer to the validation set as the "development set" (Shah, 2017).
+
+The results from the validation set help make adjustments to higher-level hyperparameters. We should also note that if we have do not have many hyperparameters in our models, we can easily validate and fine-tune them. However, with more prevalent hyperparamters, a larger validation set is required to compensate (Shah, 2017).
+
+*Missing variables*
+
+Our dataset has several key variables with missing values. While *Source* variable has very few missing values, *State* variable has 35% missingness. Moreover, *State*  is nominal categorical variable and has 50 levels that restricts possibilities of multiple imputation. 
+We need to conduct complete case analysis that will bias the results of our study within current dataset and is a serious limitation of our research. Thus the results of current analysis can be considered only as hypothesis generating results.
+
+*Oversampling or undersampling*
+
+We will need to balance our data because we do not want our logistic mixed effects model to predict all of our observations to the majority class, "No outbreak". In our case, it may not make sense to use propensity score weighting in this application, as there is unlikely to be selection bias on our "treatment" variables *Month* and *Source* or variables our dataset that are strongly related to them. Other methods we could have potentially used are weighting or changing the threshold probability, which we may explore in the final implementation of our project. However, the most work has been done in sampling approaches, therefore we decided to try this approach. If we use undersampling, we will be undersampling the majority class, which are isolates not linked to an outbreak, by identifying the most useful observations. If we use oversampling, we will be oversampling the minority class, which are isolates linked to an outbreak, by interpolating between points in our minority class. Both methods are very efficient for balancing data, and once our data is balanced we will be able to create a more accurate regression model.
+
+*Logistic fixed effects model*
+
+We will be using a logistic model because our outcome is binary, and we want to be able to predict the risk of of our outcome, an outbreak, happening based on our other covariates. We will be using a fixed effects model because we have observations that vary by state, and we are interested in determining the overall effect of month and isolation source on an outbreak adjusting for state-level differences.
+
+*Bootstrapping*
+
+The bootstrap technique will be used because it is the most reliable way to validate a model. It is less prone to overfitting and can be used with any dataset, no matter how large or small. This is done by randomly dividing the dataset into two different components—training and test samples. The training sample will be used to train the model, while the test sample will be used to evaluate how accurate it is at making predictions on new data.
+
+**Initial Implementation**
+
+First, we make sure that all of our variables are of the correct structure. Then, we will remove all observations with missing data. Lastly, we will remove any variables that we don't want to potentially include in our final model.
+
+```{r, echo=FALSE}
+  # Convert variables to factor
+isolates$Isolation.type <- as.factor(isolates$Isolation.type)
+isolates$Year <- as.factor(isolates$Year)
+isolates$Month <- as.factor(isolates$Month)
+isolates$Source <- as.factor(isolates$Source)
+isolates$State <- as.factor(isolates$State)
+isolates$SNP.cluster <- as.factor(isolates$SNP.cluster)
+isolates$Outbreak <- as.factor(isolates$Outbreak)
+```
+
+```{r, echo=FALSE}
+#  *Missing data
+
+  #Keeping only available cases for variables that have missing values
+
+isolates <- isolates %>%
+  filter(!is.na(State), !is.na(Source), !is.na(Isolation.type))
+```
+
+```{r, echo=FALSE}
+  # Remove variables we won't be using in the model, subject to change
+
+isolates <- isolates %>%
+  select(-c(X, Min.same, Min.diff, Isolate.identifiers, Isolate, YearMonth,
+            AMR.genotypes, Strain, SNP.cluster))
+```
+
+We randomly split our data into two sets, one with 70% of our observations (n=19387) which is our training set, and the remaining 30% of observations (n=8309) in our testing set. After trying to implement CNN undersampling using the UBL package in R, we found that this method was too computationally inefficient for our large dataset. As a result, we will instead compare the balancing method of weighting with the balancing method of SMOTE. First, we will generate weights for each of our observations that are equal to the inverse of the number of samples we have for each category (linked to outbreak or not linked to outbreak) for our training data. Next for the SMOTE method, we balance our training data using the SMOTE function from the DMwR package and save the resulting dataset. Next, we create two logistic fixed effects regression models-- one using our dataset resulting from applying SMOTE to our training data, and the other implementing weights on our training data. Both models have source and month as predictors, as well as fixed effects for state. Then, we apply both models on our test dataset and compare performance measures.
+
+```{r, echo=FALSE}
+# Randomly split into test and train set
+
+  #Set seed so it's the same split every time
+set.seed(77)
+
+  #Create a random 70-30 split using sample()
+split <- sample(nrow(isolates), nrow(isolates)*.7)
+
+  #All observations in 'split" are train, all that are not in split are test
+train <- isolates[split,]
+test <- isolates[-split,]
+```
+
+```{r, echo=FALSE}
+# Weighting
+train$weights <- ifelse(train$Outbreak == 1, 15, 1.07)
+```
+
+```{r, echo=FALSE}
+set.seed(7)
+
+  # Convert to factor to use for SMOTE
+train$Outbreak <- as.factor(train$Outbreak)
+
+# Oversampling (SMOTE)
+
+  # perc.over = decides how many extra cases from the minority class are generated
+  # k = number of nearest neighbors used
+  # perc.under = decides how many extra cases from the majority class are generated
+
+SMOTE_data <- SMOTE(Outbreak ~., train, perc.over = 600, k = 3, perc.under = 300)
+```
+
+```{r, echo=FALSE, include=FALSE}
+  # Check proportions after SMOTE
+table(SMOTE_data$Outbreak)
+```
+
+```{r, echo=FALSE}
+# Convert y back to numeric for modeling
+train$Outbreak <- ifelse(train$Outbreak == "1", 1, 0)
+
+# Create logistic regression model using each balancing method
+  # Weighting
+m1 <- glm(Outbreak ~ Source + Month + (State - 1),
+            data = train,
+            family = binomial(link = "logit"),
+            weights = weights)
+  #Smote
+m2 <- glm(Outbreak ~ Source + Month + (State - 1),
+            data = SMOTE_data,
+            family = binomial(link = "logit"))
+```
+
+```{r, echo=FALSE, include=FALSE}
+# Collect predicted values for each model
+predicted_weight_te <- predict(m1, test, type = "response")
+predicted_SMOTE_te <- predict(m2, test, type = "response")
+
+# Find optimal cutoff probability to use to maximize accuracy
+optimal_weight_te <- optimalCutoff(test$Outbreak, predicted_weight_te)[1]
+optimal_SMOTE_te <- optimalCutoff(test$Outbreak, predicted_SMOTE_te)[1]
+
+# Apply optimal cutoffs to predictions
+preds_weight_te <- ifelse(predicted_weight_te > optimal_weight_te, 1, 0)
+preds_SMOTE_te <- ifelse(predicted_SMOTE_te > optimal_SMOTE_te, 1, 0)
+
+# Gather measures of performance for both models using predictions
+confusionMatrix(test$Outbreak, preds_weight_te)
+confusionMatrix(test$Outbreak, preds_SMOTE_te)
+
+auc(test$Outbreak, preds_weight_te)
+auc(test$Outbreak, preds_SMOTE_te)
+```
+
+```{r, echo=FALSE}
+performance_measures <- data.frame(accuracy = c((7716+40)/8298, (7743+6)/8298),
+                                    sensitivity = c(7716/(7716+510), 7743/(7743+544)),
+                                    specificity = c(40/(40+32), 6/(6+5)),
+                                    auc = c(0.5363, 0.5080))
+
+rownames(performance_measures) <- c("Weighting Method", "SMOTE Method")
+colnames(performance_measures) <- c("Accuracy", "Sensitivity","Specificity", "AUC")
+```
+
+```{r, echo=FALSE}
+performance_measures %>%
+  kable() %>%
+  kable_styling(latex_options = c("hold_position")) %>%
+  add_header_above(c("Table 1: Performance Measures for Balancing Methods"=5))
+```
+
+Looking at Table 1, our "base" model is a really bad predictor of outbreaks as we see from the AUC measure. We tried a number of different parameters in our balancing methods and did not see many changes, therefore, the poor fit is likely a result of our model rather than our balancing methods. Regardless, weighting seems to perform better than SMOTE for our data. As a result, we will use weighting to balance data for our final model. 
+
+```{r, echo=FALSE, eval = FALSE}
+  # Model fitting
+m1 <- glm(Outbreak ~ Source + Month + Isolation.type + Year + (State - 1),
+            data = train,
+            family = binomial(link = "logit"),
+            weights = weights)
+
+step(m1)
+```
+
+After applying our weighting methods and finding the best-fitting main effects model, we see that our regression model could use some improvement and plan to explore transforming variables (such as month into season, or adding average temperature for each season in each state), or potentially adding fixed effects for year in future implementations. However, our model is able to converge and we can implement the overall methods we planned to.
+
+**References**
+
+1.) Assumptions of Logistic Regression. (n.d.). Statistics Solutions. https://www.statisticssolutions.com/free-resources/directory-of-statistical-analyses/assumptions-of-logistic-regression/
+
+2.) Logistic Regression Assumptions and Diagnostics in R - Articles - STHDA. (n.d.). Www.sthda.com. http://www.sthda.com/english/articles/36-classification-methods-essentials/148-logistic-regression-assumptions-and-diagnostics-in-r/
+
+3.) Shah, T. (2017, December 6). About Train, Validation and Test Sets in Machine Learning. Towards Data Science; Towards Data Science. https://towardsdatascience.com/train-validation-and-test-sets-72cb40cba9e7
+
+4.) What is Logistic Regression? (n.d.). Careerfoundry.com. https://careerfoundry.com/en/blog/data-analytics/what-is-logistic-regression/
