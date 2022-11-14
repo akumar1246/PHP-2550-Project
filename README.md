@@ -18,9 +18,9 @@ The second dataset titled "NationalOutbreakPublicDataTool.csv" is downloaded fro
 https://wwwn.cdc.gov/norsdashboard/
 
 
-# Syntax_archive
+# Syntax
 
-This folder includes all previous versions of syntax that we have created or worked with to explore our data. 
+This folder includes all syntax that we have created or worked with to explore our data and implement our project.
 
 
 # Literature
@@ -28,6 +28,6 @@ This folder includes all previous versions of syntax that we have created or wor
 This folder includes sources that we have used to investigate the topic of Campylobacter jejuni, sources that we have used in our literature review, as well as sources we have consulted to understand the potential limitations of our project.
 
 
-# ExploratoryDataAnalysis.Rmd
+# Packages
 
-This file contains the final version of our initial exploratory data analysis. 
+This folder includes any packages that will be needed to run our syntax that are not currently available on the CRAN repository.
