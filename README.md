@@ -1,6 +1,6 @@
 # High-risk Sources and Seasons of C. Jejuni Outbreaks
 
-![cowsinafield-game](https://user-images.githubusercontent.com/55213658/208001330-d3c8ccf5-4112-4f1f-b982-773f82ae88a1.png)
+![eacaea1be4b7e9b9c97d6124a4b4a10912a0130e07bfdad78ae03c0374c5e997-1](https://user-images.githubusercontent.com/55213658/208001426-026d0907-9b99-4190-a7d3-63f87ffe6c05.jpg)
 
 # Introduction
 
