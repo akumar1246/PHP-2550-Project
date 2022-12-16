@@ -1,5 +1,7 @@
 # High-risk Sources and Seasons of C. Jejuni Outbreaks
 
+![cowsinafield-game](https://user-images.githubusercontent.com/55213658/208001330-d3c8ccf5-4112-4f1f-b982-773f82ae88a1.png)
+
 # Introduction
 
 In the United States, roughly 2.1-2.4 million individuals are diagnosed with human campylobacteriosis. These bacteria strains are classified as infectious diseases, and the broader symptoms of being infected include dysentery, abdominal cramping, etc. While less common, such strains, specifically that of Campylobacter jejuni (C. jejuni), can also result in septic arthritis, a condition which infects the joints. The strain of C. jejuni is most frequently reported in the United States, and is defined as the root cause of foodborne disease.
