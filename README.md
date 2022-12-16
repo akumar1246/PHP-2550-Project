@@ -9,18 +9,20 @@ In this repository, we use secondary data on the foodborne pathogen Campylobacte
 
 # Data
 
-In this section, we have two data sources. The first dataset titled "isolates.csv" is downloaded from the "Isolates" browser of the National Library of Medicine's (NIH) NCBI Pathogen Detection Project which is located at:
+In this section, we have two data sources. The dataset titled "isolates.csv" is downloaded from the "Isolates" browser of the National Library of Medicine's (NIH) NCBI Pathogen Detection Project which is located at:
 
 https://www.ncbi.nlm.nih.gov/pathogens/isolates/#taxgroup_name:%22Campylobacter%20jejuni%22
 
-The second dataset titled "NationalOutbreakPublicDataTool.csv" is downloaded from the CDC's National Outbreak Reporting System (NORS) and contains data on the state, year, and month, of all Campylobacter jejuni outbreaks in the United States from 2012-2020. This dataset can be found here:
+The dataset titled "NationalOutbreakPublicDataTool.csv" is downloaded from the CDC's National Outbreak Reporting System (NORS) and contains data on the state, year, and month, of all Campylobacter jejuni outbreaks in the United States from 2012-2020. This dataset can be found here:
 
 https://wwwn.cdc.gov/norsdashboard/
+
+The dataset titled "isolates_clean.csv" is our final dataset after implementing data cleaning and management. It can be created by running the "DataManagement_and_EDA3.Rmd" syntax with the initial dataset, "isolates.csv". If you wish to run the code for our analysis syntax, please either use the cleaned data set, or run the data management syntax on the original dataset.
 
 
 # Syntax
 
-This folder includes all syntax that we have created or worked with to explore our data and implement our project.
+This folder includes all syntax that we have created or worked with to explore our data and implement our project. The "DataManagement_and_EDA3.Rmd" file contains all of our data cleaning and data exploration. The "Analysis.Rmd" file contains all of the syntax related to our analysis.
 
 
 # Literature
